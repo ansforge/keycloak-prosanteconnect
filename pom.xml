@@ -7,8 +7,7 @@
   <version>1.0.0</version>
 
   <name>${project.groupId}:${project.artifactId}</name>
-  <description>Pro Sante Connect Openid-Connect Provider for Keycloak</description>
-  <!--<url>https://github.com/InseeFr/Keycloak-ProSanteConnect</url>-->
+  <description>Pro Sante Connect Openid-Connect Provider pour Keycloak</description>
 
   <licenses>
     <license>
@@ -20,39 +19,10 @@
   <developers>
     <developer>
       <name>Maxim Juravliov</name>
-      <!--<email>cedric.couralet@insee.fr</email>-->
       <organization>ANS</organization>
-      <!--<organizationUrl>https://www.insee.fr/</organizationUrl>-->
     </developer>
   </developers>
-
-  <!--<scm>
-    <connection>scm:git:git://github.com/InseeFr/Keycloak-FranceConnect.git</connection>
-    <developerConnection>scm:git:ssh://git@github.com:InseeFr/Keycloak-FranceConnect.git</developerConnection>
-    <url>https://github.com/InseeFr/Keycloak-FranceConnect</url>
-  </scm>
-
-  <issueManagement>
-    <system>Github</system>
-    <url>https://github.com/InseeFr/Keycloak-FranceConnect/issues</url>
-  </issueManagement>
-
-  <ciManagement>
-    <system>Github Actions</system>
-    <url>https://github.com/InseeFr/Keycloak-FranceConnect/actions</url>
-  </ciManagement>
-
-  <distributionManagement>
-    <snapshotRepository>
-      <id>ossrh</id>
-      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-    </snapshotRepository>
-    <repository>
-      <id>ossrh</id>
-      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-    </repository>
-  </distributionManagement>
--->
+  
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
