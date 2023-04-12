@@ -13,7 +13,8 @@ Ce connecteur Keycloack fourni par l’ANS a pour vocation de simplifier l’int
 
 ## Compatibilité
 
-- La version 1.0.0 est compatible avec Keycloak `18.0.2` et supérieur.
+- La version 1.0.0 est compatible avec Keycloak `18.0.X`.
+- La version 2.0.0 est compatible avec Keycloak `21.0.X` et supérieur.
 
 ## Installation
 
@@ -47,67 +48,48 @@ Dans l’écran ci-dessous, il est nécessaire de remplir le client id et client
 
 ![keycloak_provider_1](/assets/keycloak_provider_1.PNG)
 
-Voici un tableau récapitulatif des paramètres disponibles au niveau de l’interface du connecteur :
+Des champs supplémentaires sont disponibles une fois le provider créé :
+![keycloak_provider_2](/assets/keycloak_provider_2.PNG)
 
-| Nom du paramètre |	Type |	Description |
-| --- | --- | --- |
-| Environnement |	Jeu de valeurs |	A sélectionner entre « Bac à Sable » ou « Production » |
-| Redirect URI |	Non modifiable |	Le Redirect URI à déclarer auprès de Pro Santé Connect. Il faut également déclarer un second redirect URI concatené avec /logout_response au bout. Exemple : https://keycloak.henix.asipsante.fr/realms/master/broker/psc/endpoint et https://keycloak.henix.asipsante.fr/realms/master/broker/psc/endpoint/logout_response |
-| Display Name |	Texte |	Le nom de l’Identity Provider affiché dans Keycloak. |
-| Client ID |	Texte |	Le Client ID tel que fourni par Pro Santé Connect. |
-| Client Secret |	Texte |	Le Client Secret tel que fourni par Pro Santé Connect. |
-| Default Scopes |	Texte |	Scopes supportés par Pro Santé Connect (les scopes par défaut : openid scope_all ) |
-| eIDAS warranty |	Jeu de valeurs |	Seul le niveau eIDAS 1 est pris en charge. |
-| Enabled |	Booléen |	Permet d’activer ou de désactiver ce Provider.
-| Trust Email |	Booléen |	Permet d’activer ou de désactiver la vérification de l’email du Provider. |
-| Store Tokens |	Booléen |	Permet d’activer ou de désactiver la sauvegarde des tokens d’authentification des utilisateurs. |
-| Stored Tokens | Readable |	Booléen	Permet d’activer ou de désactiver la lecture des tokens sauvegardés par les nouveaux utilisateurs. |
-| Account Linking only |	Booléen |	Permet d’activer ou de désactiver la possibilité de l’utilisateur d’être authentifié par Pro Santé Connect. |
-| Hide on Login Page |	Booléen |	Permet d’activer ou de désactiver le bouton de connexion Pro Santé Connect sauf si demandé explicitement via un paramètre dans la requête (par exemple : kc_idp_hint). |
-| Gui Order |	Texte |	Numéro d’ordre du bouton Pro Santé Connect sur l’UI de login. |
-| First Login Flow |	Jeu de valeurs |	Action déclenchée lors du premier login avec ce Provider. |
-| Post Login Flow |	Texte |	Action déclenchée lors de la déconnexion avec ce Provider. |
-| Pass login_hint |	Booléen |	Permet d’activer ou de désactiver la possibilité de passer le paramètre login_hint. |
-| Pass current locale	| Booléen |	Permet d’activer ou de désactiver la possibilité de passer le paramètre de la localisation courante à la requête. |
-| Prompt |	Jeu de valeurs |	Spécifie le comportement du prompt à adopter lors de la réauthentification. |
-| Validate Signatures |	Booléen |	Permet d’activer ou de désactiver la validation des signatures de Pro Santé Connect. |
-| Ignore absent state parameter on logout	| Booléen |	Permet d’activer ou de désactiver le remontée d’erreurs si Pro Santé Connecte ne retourne pas de paramètre « state » lors de la déconnexion. |
-| Allowed clock skew |	Texte |	Décalage (en secondes) acceptable lors de la vérification des tokens du Provider, par défaut 0. |
-| Forwarded query parameters |	Texte |	Paramètres supplémentaires transmis du client jusqu’aux endpoints Pro Santé Connect. |
+A noter que l'environnement Pro Santé Connect par défaut est celui de production. Pour pouvoir utiliser l'environnement bac à sable, il est nécessaire de valoriser la variable d'environnement suivante :
+PROSANTECONNECT_BACASABLE=1
 
 ### Définition d'une application cliente
 
 Déclarer l’application cliente auprès du serveur keycloak comme suit :
 
-![keycloak_client_1.PNG](/assets/keycloak_client_1.PNG)
+![keycloak_client_1](/assets/keycloak_client_1.PNG)
 
 Le Client ID doit correspondre à celui défini dans la configuration de l’application cliente, par exemple au niveau de la directive suivante :  
 **OIDCClientID tryecps**
 
-L’access type peut être configuré sur confidential.
+![keycloak_client_2](/assets/keycloak_client_2.PNG)
 
-![keycloak_client_2.PNG](/assets/keycloak_client_2.PNG)
+Il est ensuite possible d'activer l'authentification, comme suit :
+![keycloak_client_3](/assets/keycloak_client_3.PNG)
 
 Il est obligatoire de déclarer les redirect URIs exactement comme définis au niveau de l’application cliente, comme au niveau de la directive suivante (dans cet exemple, le wildcard * est utilisable) :  
 **OIDCRedirectURI https://tryecps.henix.asipsante.fr/oidc/redirect**
 
-![keycloak_client_3.PNG](/assets/keycloak_client_3.PNG)
+![keycloak_client_4](/assets/keycloak_client_4.PNG)
 
 Le secret généré ici par Keycloak doit être renseigné auprès de l’application cliente, par exemple au niveau de la directive suivante :  
 **OIDCClientSecret zjYDwYCqtSjseVHTGdLBi4FLiTWXogsQ**
 
+![keycloak_client_5](/assets/keycloak_client_5.PNG)
 
 ### Thème
 
-Cette extension fournit un thème : `psc-theme`
+Cette extension fournit un thème : `psc`
 
-Il y a deux moyens de définir le thème:
+Il y a deux moyens de définir le thème :
+
 * Au niveau du serveur Keycloak:
-![keycloak_theme_1.PNG](/assets/keycloak_theme_1.PNG)
+![keycloak_theme_1](/assets/keycloak_theme_1.PNG)
 
 * Au niveau de l'application cliente:
-![keycloak_theme_2.PNG](/assets/keycloak_theme_2.PNG)
+![keycloak_theme_2](/assets/keycloak_theme_2.PNG)
 
 La page de login de Keycloak ressemblera alors à ça:
-![keycloak_theme_login.PNG](/assets/keycloak_theme_login.PNG)
+![keycloak_theme_login](/assets/keycloak_theme_login.PNG)
 
