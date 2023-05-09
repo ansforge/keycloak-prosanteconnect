@@ -1,18 +1,18 @@
 package fr.ans.keycloak.providers.prosanteconnect;
 
+import static fr.ans.keycloak.utils.KeycloakFixture.CLIENT_ID;
+import static fr.ans.keycloak.utils.KeycloakFixture.CLIENT_SECRET;
+import static fr.ans.keycloak.utils.SignatureUtils.generateES256Key;
+import static fr.ans.keycloak.utils.SignatureUtils.signJwtWithES256PrivateKey;
+import static fr.ans.keycloak.utils.SignatureUtils.signJwtWithHS256SharedSecret;
+
+import org.keycloak.models.IdentityProviderModel;
+
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jwt.JWTClaimsSet;
 
-import fr.ans.keycloak.providers.prosanteconnect.PSCEnvironment;
-import fr.ans.keycloak.providers.prosanteconnect.ProSanteConnectIdentityProviderConfig;
 import fr.ans.keycloak.utils.PublicKeysStore;
 import fr.ans.keycloak.utils.SignatureUtils;
-
-import static fr.ans.keycloak.utils.KeycloakFixture.CLIENT_ID;
-import static fr.ans.keycloak.utils.KeycloakFixture.CLIENT_SECRET;
-import static fr.ans.keycloak.utils.SignatureUtils.*;
-
-import org.keycloak.models.IdentityProviderModel;
 
 final class PSCFixture {
 
@@ -21,7 +21,7 @@ final class PSCFixture {
 
   static final JWTClaimsSet EIDAS1_JWT = new JWTClaimsSet.Builder()
       .subject("fakeSub")
-      .issuer("https://auth.bas.psc.esante.gouv.fr/auth/realms/esante-wallet")
+      .issuer("https://auth.esw.esante.gouv.fr/auth/realms/esante-wallet")
       .audience(CLIENT_ID)
       .claim("nonce", "randomNonce")
       .claim("idp", "PSC")
@@ -41,7 +41,7 @@ final class PSCFixture {
 
   static final JWTClaimsSet NO_EIDAS_LEVEL_JWT = new JWTClaimsSet.Builder()
       .subject("fakeSub")
-      .issuer("https://auth.bas.psc.esante.gouv.fr/auth/realms/esante-wallet")
+      .issuer("https://auth.esw.esante.gouv.fr/auth/realms/esante-wallet")
       .audience(CLIENT_ID)
       .claim("nonce", "randomNonce")
       .claim("idp", "PSC")
@@ -50,7 +50,7 @@ final class PSCFixture {
 
   static final JWTClaimsSet UNSUPPORTED_EIDAS_LEVEL_JWT = new JWTClaimsSet.Builder()
       .subject("fakeSub")
-      .issuer("https://auth.bas.psc.esante.gouv.fr/auth/realms/esante-wallet")
+      .issuer("https://auth.esw.esante.gouv.fr/auth/realms/esante-wallet")
       .audience(CLIENT_ID)
       .claim("nonce", "randomNonce")
       .claim("idp", "PSC")

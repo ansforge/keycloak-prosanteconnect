@@ -1,7 +1,7 @@
 {
   "themes": [
     {
-      "name": "psc-theme",
+      "name": "psc",
       "types": [
         "admin",
         "login"

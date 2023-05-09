@@ -1,24 +1,26 @@
 package fr.ans.keycloak.utils;
 
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.security.Security;
+import java.util.Optional;
+
+import javax.ws.rs.core.UriInfo;
+
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.jboss.resteasy.spi.HttpRequest;
 import org.keycloak.broker.provider.AuthenticationRequest;
 import org.keycloak.broker.provider.util.IdentityBrokerState;
+import org.keycloak.common.crypto.CryptoIntegration;
 import org.keycloak.connections.httpclient.HttpClientProvider;
+import org.keycloak.http.HttpRequest;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
 import org.keycloak.services.DefaultKeycloakSession;
 import org.keycloak.vault.DefaultVaultStringSecret;
 import org.keycloak.vault.VaultTranscriber;
-
-import javax.ws.rs.core.UriInfo;
-import java.security.Security;
-import java.util.Optional;
-
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public final class KeycloakFixture {
 
@@ -66,6 +68,7 @@ public final class KeycloakFixture {
 
     // Add ECDSA Provider
     Security.addProvider(new BouncyCastleProvider());
+    CryptoIntegration.init(ClassLoader.getSystemClassLoader());
 
     return session;
   }

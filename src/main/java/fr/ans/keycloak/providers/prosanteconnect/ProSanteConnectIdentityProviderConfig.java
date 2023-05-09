@@ -1,6 +1,5 @@
 package fr.ans.keycloak.providers.prosanteconnect;
 
-import static fr.ans.keycloak.providers.prosanteconnect.ProSanteConnectIdentityProviderFactory.DEFAULT_PSC_ENVIRONMENT;
 import static fr.ans.keycloak.providers.prosanteconnect.ProSanteConnectIdentityProviderFactory.PSC_PROVIDER_MAPPERS;
 
 import java.util.List;
@@ -12,6 +11,10 @@ import org.keycloak.models.RealmModel;
 
 final class ProSanteConnectIdentityProviderConfig extends OIDCIdentityProviderConfig {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private static final String IS_CONFIG_CREATED_PROPERTY = "isCreated";
 
 	ProSanteConnectIdentityProviderConfig(IdentityProviderModel identityProviderModel) {
@@ -46,8 +49,11 @@ final class ProSanteConnectIdentityProviderConfig extends OIDCIdentityProviderCo
 	}
 
 	protected String getEnvironmentProperty(String key) {
-		var pscEnvironment = PSCEnvironment.getOrDefault(getConfig().get(PSCEnvironment.ENVIRONMENT_PROPERTY_NAME),
-				DEFAULT_PSC_ENVIRONMENT);
+		var pscEnvironment = PSCEnvironment.PRODUCTION;
+		String env = System.getenv("PROSANTECONNECT_BACASABLE");
+		if(env != null && env.contentEquals("1")) {
+			pscEnvironment = PSCEnvironment.INTEGRATION;
+		}
 
 		return pscEnvironment.getProperty(key);
 	}

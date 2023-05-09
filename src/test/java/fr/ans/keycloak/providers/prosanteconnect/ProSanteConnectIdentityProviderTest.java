@@ -50,7 +50,7 @@ class ProSanteConnectIdentityProviderTest {
 
   @BeforeEach
   void setup() throws IOException {
-    config = givenConfigWithSelectedEnvAndSelectedEidasLevel("integration", "eidas1");
+    config = givenConfigWithSelectedEnvAndSelectedEidasLevel("production", "eidas1");
     publicKeysStore = new PublicKeysStore();
 
     httpClientProvider = mock(HttpClientProvider.class);
@@ -271,13 +271,6 @@ class ProSanteConnectIdentityProviderTest {
     void should_extract_information_from_JWT_userinfo_endpoint_response_for_eidas1() throws IOException {
       // Change current selected eidas level in config
       config.getConfig().put(EidasLevel.EIDAS_LEVEL_PROPERTY_NAME, "eidas1");
-
-      var httpResponse = ClosableHttpResponse.from(
-          Map.of(HttpHeaders.CONTENT_TYPE, "application/jwt"),
-          SignatureUtils.givenAnECDSASignedJWTWithRegisteredKidInJWKS("USERINFO-ECDSA-KID", USERINFO_JWT, publicKeysStore)
-      );
-      when(httpClient.execute(any()))
-          .thenAnswer(answer -> httpResponse);
 
       var kid = "ECDSA-KID";
       var opaqueAccessToken = "2b3ea2e8-2d11-49a4-a369-5fb98d9d5315";

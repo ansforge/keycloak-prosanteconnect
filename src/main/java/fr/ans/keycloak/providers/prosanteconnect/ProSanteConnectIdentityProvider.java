@@ -1,15 +1,14 @@
 package fr.ans.keycloak.providers.prosanteconnect;
 
-import static fr.ans.keycloak.providers.prosanteconnect.EidasLevel.EIDAS1;
+import static fr.ans.keycloak.providers.prosanteconnect.Utils.transcodeSignatureToDER;
 import static javax.ws.rs.core.Response.Status.OK;
-import static org.keycloak.util.JWKSUtils.getKeysForUse;
-
-import com.fasterxml.jackson.databind.JsonNode;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.security.PublicKey;
 import java.security.Signature;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -20,14 +19,15 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.DatatypeConverter;
+
 import org.keycloak.OAuth2Constants;
+import org.keycloak.broker.oidc.AbstractOAuth2IdentityProvider;
 import org.keycloak.broker.oidc.OIDCIdentityProvider;
 import org.keycloak.broker.oidc.OIDCIdentityProviderConfig;
 import org.keycloak.broker.oidc.mappers.AbstractJsonUserAttributeMapper;
 import org.keycloak.broker.provider.AuthenticationRequest;
 import org.keycloak.broker.provider.BrokeredIdentityContext;
 import org.keycloak.broker.provider.IdentityBrokerException;
-import org.keycloak.broker.provider.IdentityProvider.AuthenticationCallback;
 import org.keycloak.broker.provider.util.SimpleHttp;
 import org.keycloak.broker.social.SocialIdentityProvider;
 import org.keycloak.crypto.JavaAlgorithm;
@@ -39,7 +39,6 @@ import org.keycloak.jose.jwe.JWE;
 import org.keycloak.jose.jwe.JWEException;
 import org.keycloak.jose.jwk.JSONWebKeySet;
 import org.keycloak.jose.jwk.JWK;
-import org.keycloak.jose.jws.Algorithm;
 import org.keycloak.jose.jws.JWSInput;
 import org.keycloak.jose.jws.JWSInputException;
 import org.keycloak.jose.jws.crypto.HMACProvider;
@@ -55,9 +54,10 @@ import org.keycloak.services.managers.AuthenticationManager;
 import org.keycloak.services.messages.Messages;
 import org.keycloak.services.resources.IdentityBrokerService;
 import org.keycloak.services.resources.RealmsResource;
+import org.keycloak.util.JWKSUtils;
 import org.keycloak.util.JsonSerialization;
 
-import static fr.ans.keycloak.providers.prosanteconnect.Utils.transcodeSignatureToDER;
+import com.fasterxml.jackson.databind.JsonNode;
 
 final class ProSanteConnectIdentityProvider extends OIDCIdentityProvider
 		implements SocialIdentityProvider<OIDCIdentityProviderConfig> {
@@ -75,7 +75,7 @@ final class ProSanteConnectIdentityProvider extends OIDCIdentityProvider
 
 	@Override
 	public Object callback(RealmModel realm, AuthenticationCallback callback, EventBuilder event) {
-		return new OIDCEndpoint(callback, realm, event, getConfig());
+		return new OIDCEndpoint(callback, realm, event, getConfig(), this);
 	}
 
 	@Override
@@ -91,17 +91,15 @@ final class ProSanteConnectIdentityProvider extends OIDCIdentityProvider
 
 		var idToken = getIdTokenForLogout(userSession);
 
-		if (idToken != null && config.isBackchannelSupported()) {
+		if (config.isBackchannelSupported()) {
 			backchannelLogout(userSession, idToken);
 			return null;
 		}
 
 		var sessionId = userSession.getId();
 		var logoutUri = UriBuilder.fromUri(logoutUrl).queryParam("state", sessionId);
+		logoutUri.queryParam("id_token_hint", idToken);
 
-		if (idToken != null) {
-			logoutUri.queryParam("id_token_hint", idToken);
-		}
 		var redirectUri = RealmsResource.brokerUrl(uriInfo).path(IdentityBrokerService.class, "getEndpoint")
 				.path(OIDCEndpoint.class, "logoutResponse").build(realm.getName(), config.getAlias()).toString();
 
@@ -110,22 +108,18 @@ final class ProSanteConnectIdentityProvider extends OIDCIdentityProvider
 		return Response.status(Response.Status.FOUND).location(logoutUri.build()).build();
 	}
 
-	/*
-	 * protected String getIdTokenForLogout(UserSessionModel userSession) { return
-	 * userSession.getNote(FEDERATED_ID_TOKEN); }
-	 */
-
 	@Override
 	protected boolean verify(JWSInput jws) {
 		logger.info("Validating: " + jws.getWireString());
 
 		var config = getConfig();
+		var algorithm = JavaAlgorithm.getJavaAlgorithm(jws.getHeader().getAlgorithm().name());
 
 		if (!config.isValidateSignature()) {
 			return true;
 		}
 
-		if (Algorithm.HS256.equals(jws.getHeader().getAlgorithm())) {
+		if (algorithm.equals(JavaAlgorithm.HS256)) {
 			try (var vaultStringSecret = session.vault().getStringSecret(getConfig().getClientSecret())) {
 				var clientSecret = vaultStringSecret.get().orElse(getConfig().getClientSecret());
 				return HMACProvider.verify(jws, clientSecret.getBytes());
@@ -133,19 +127,21 @@ final class ProSanteConnectIdentityProvider extends OIDCIdentityProvider
 		}
 
 		try {
-			var publicKey = Optional.ofNullable(getKeysForUse(jwks, JWK.Use.SIG).get(jws.getHeader().getKeyId()))
-					.or(() -> {
+			var publicKey = Optional.ofNullable(JWKSUtils.getKeyWrappersForUse(jwks, JWK.Use.SIG).getKeys().stream()
+					.collect(Collectors.toMap(KeyWrapper::getKid, keyWrapper -> (PublicKey) keyWrapper.getPublicKey()))
+					.get(jws.getHeader().getKeyId())).or(() -> {
 						// Try reloading jwks url
 						jwks = Utils.getJsonWebKeySetFrom(config.getJwksUrl(), session);
-						return Optional.ofNullable(getKeysForUse(jwks, JWK.Use.SIG).get(jws.getHeader().getKeyId()));
+						return Optional.ofNullable(JWKSUtils.getKeyWrappersForUse(jwks, JWK.Use.SIG).getKeys().stream()
+								.collect(Collectors.toMap(KeyWrapper::getKid,
+										keyWrapper -> (PublicKey) keyWrapper.getPublicKey()))
+								.get(jws.getHeader().getKeyId()));
 					}).orElse(null);
 
 			if (publicKey == null) {
 				logger.error("No keys found for kid: " + jws.getHeader().getKeyId());
 				return false;
 			}
-
-			var algorithm = JavaAlgorithm.getJavaAlgorithm(jws.getHeader().getAlgorithm().name());
 
 			var verifier = Signature.getInstance(algorithm);
 			verifier.initVerify(publicKey);
@@ -198,8 +194,9 @@ final class ProSanteConnectIdentityProvider extends OIDCIdentityProvider
 		private final ProSanteConnectIdentityProviderConfig config;
 
 		public OIDCEndpoint(AuthenticationCallback callback, RealmModel realm, EventBuilder event,
-				ProSanteConnectIdentityProviderConfig config) {
-			super(callback, realm, event);
+				ProSanteConnectIdentityProviderConfig config,
+				AbstractOAuth2IdentityProvider<OIDCIdentityProviderConfig> provider) {
+			super(callback, realm, event, provider);
 			this.config = config;
 		}
 
@@ -294,7 +291,6 @@ final class ProSanteConnectIdentityProvider extends OIDCIdentityProvider
 		return validateToken(token, ignoreAudience);
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	protected BrokeredIdentityContext extractIdentity(AccessTokenResponse tokenResponse, String accessToken,
 			JsonWebToken idToken) throws IOException {
@@ -307,56 +303,50 @@ final class ProSanteConnectIdentityProvider extends OIDCIdentityProvider
 		var preferredUsername = (String) idToken.getOtherClaims().get(getusernameClaimNameForIdToken());
 		var email = (String) idToken.getOtherClaims().get(IDToken.EMAIL);
 
-		if (!getConfig().isDisableUserInfoService()) {
-			var userInfoUrl = getUserInfoUrl();
-			if (userInfoUrl != null && !userInfoUrl.isEmpty()) {
+		var userInfoUrl = getUserInfoUrl();
+		if (!getConfig().isDisableUserInfoService() && userInfoUrl != null && !userInfoUrl.isEmpty()
+				&& accessToken != null) {
+			var response = executeRequest(userInfoUrl,
+					SimpleHttp.doGet(userInfoUrl, session).header("Authorization", "Bearer " + accessToken));
+			var contentType = response.getFirstHeader(HttpHeaders.CONTENT_TYPE);
 
-				if (accessToken != null) {
-					var response = executeRequest(userInfoUrl,
-							SimpleHttp.doGet(userInfoUrl, session).header("Authorization", "Bearer " + accessToken));
-					var contentType = response.getFirstHeader(HttpHeaders.CONTENT_TYPE);
-
-					MediaType contentMediaType;
-					try {
-						contentMediaType = MediaType.valueOf(contentType);
-					} catch (IllegalArgumentException ex) {
-						contentMediaType = null;
-					}
-					if (contentMediaType == null || contentMediaType.isWildcardSubtype()
-							|| contentMediaType.isWildcardType()) {
-						throw new RuntimeException("Unsupported content-type [" + contentType + "] in response from ["
-								+ userInfoUrl + "].");
-					}
-
-					JsonNode userInfo;
-
-					if (MediaType.APPLICATION_JSON_TYPE.isCompatible(contentMediaType)) {
-						userInfo = response.asJson();
-					} else if (APPLICATION_JWT_TYPE.isCompatible(contentMediaType)) {
-						try {
-							var jwt = isJWETokenFormatRequired(response.asString()) ? decryptJWE(response.asString())
-									: response.asString();
-
-							userInfo = getJsonFromJWT(jwt);
-						} catch (IdentityBrokerException ex) {
-							throw new RuntimeException(
-									"Failed to verify signature of userinfo response from [" + userInfoUrl + "].", ex);
-						}
-					} else {
-						throw new RuntimeException("Unsupported content-type [" + contentType + "] in response from ["
-								+ userInfoUrl + "].");
-					}
-
-					id = getJsonProperty(userInfo, "sub");
-					name = getJsonProperty(userInfo, "name");
-					givenName = getJsonProperty(userInfo, IDToken.GIVEN_NAME);
-					familyName = getJsonProperty(userInfo, IDToken.FAMILY_NAME);
-					preferredUsername = getUsernameFromUserInfo(userInfo);
-					email = getJsonProperty(userInfo, "email");
-					AbstractJsonUserAttributeMapper.storeUserProfileForMapper(identity, userInfo,
-							getConfig().getAlias());
-				}
+			MediaType contentMediaType;
+			try {
+				contentMediaType = MediaType.valueOf(contentType);
+			} catch (IllegalArgumentException ex) {
+				contentMediaType = null;
 			}
+			if (contentMediaType == null || contentMediaType.isWildcardSubtype() || contentMediaType.isWildcardType()) {
+				throw new RuntimeException(
+						"Unsupported content-type [" + contentType + "] in response from [" + userInfoUrl + "].");
+			}
+
+			JsonNode userInfo;
+
+			if (MediaType.APPLICATION_JSON_TYPE.isCompatible(contentMediaType)) {
+				userInfo = response.asJson();
+			} else if (APPLICATION_JWT_TYPE.isCompatible(contentMediaType)) {
+				try {
+					var jwt = isJWETokenFormatRequired(response.asString()) ? decryptJWE(response.asString())
+							: response.asString();
+
+					userInfo = getJsonFromJWT(jwt);
+				} catch (IdentityBrokerException ex) {
+					throw new RuntimeException(
+							"Failed to verify signature of userinfo response from [" + userInfoUrl + "].", ex);
+				}
+			} else {
+				throw new RuntimeException(
+						"Unsupported content-type [" + contentType + "] in response from [" + userInfoUrl + "].");
+			}
+
+			id = getJsonProperty(userInfo, "sub");
+			name = getJsonProperty(userInfo, "name");
+			givenName = getJsonProperty(userInfo, IDToken.GIVEN_NAME);
+			familyName = getJsonProperty(userInfo, IDToken.FAMILY_NAME);
+			preferredUsername = getUsernameFromUserInfo(userInfo);
+			email = getJsonProperty(userInfo, "email");
+			AbstractJsonUserAttributeMapper.storeUserProfileForMapper(identity, userInfo, getConfig().getAlias());
 		}
 
 		identity.setId(id);
@@ -366,7 +356,7 @@ final class ProSanteConnectIdentityProvider extends OIDCIdentityProvider
 		identity.setLastName(familyName);
 
 		if (givenName == null && familyName == null) {
-			identity.setName(name);
+			identity.setLastName(name);
 		}
 
 		identity.setEmail(email);
@@ -405,7 +395,7 @@ final class ProSanteConnectIdentityProvider extends OIDCIdentityProvider
 
 			logger.debug("Found corresponding secret key for kid " + kid);
 			jwe.getKeyStorage().setDecryptionKey(key);
-			return new String(jwe.verifyAndDecodeJwe().getContent());
+			return new String(jwe.verifyAndDecodeJwe().getContent(), StandardCharsets.UTF_8);
 		} catch (JWEException ex) {
 			throw new IdentityBrokerException("Invalid token", ex);
 		}
@@ -417,7 +407,6 @@ final class ProSanteConnectIdentityProvider extends OIDCIdentityProvider
 		if (response.getStatus() != OK.getStatusCode()) {
 			throw new IdentityBrokerException("Failed to invoke url [" + url + "]: " + response.asString());
 		}
-
 		return response;
 	}
 
