@@ -1,3 +1,6 @@
+/*
+ * (c) Copyright 1998-2023, ANS. All rights reserved.
+ */
 package fr.ans.keycloak.utils;
 
 import static org.apache.http.impl.DefaultHttpResponseFactory.INSTANCE;

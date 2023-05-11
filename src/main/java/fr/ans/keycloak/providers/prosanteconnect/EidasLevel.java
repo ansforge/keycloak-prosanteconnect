@@ -1,3 +1,6 @@
+/*
+ * (c) Copyright 1998-2023, ANS. All rights reserved.
+ */
 package fr.ans.keycloak.providers.prosanteconnect;
 
 public enum EidasLevel {
@@ -16,7 +19,11 @@ public enum EidasLevel {
         return eidasLevel;
       }
     }
-
-    return defaultEidasLevel;
+    
+    if (eidasLevelName == null) {
+    	return defaultEidasLevel;
+    }
+    
+    return null;
   }
 }

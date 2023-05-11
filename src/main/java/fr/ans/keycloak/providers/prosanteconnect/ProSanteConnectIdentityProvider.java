@@ -1,3 +1,6 @@
+/*
+ * (c) Copyright 1998-2023, ANS. All rights reserved.
+ */
 package fr.ans.keycloak.providers.prosanteconnect;
 
 import static fr.ans.keycloak.providers.prosanteconnect.Utils.transcodeSignatureToDER;
@@ -168,18 +171,14 @@ final class ProSanteConnectIdentityProvider extends OIDCIdentityProvider
 			var idToken = (JsonWebToken) federatedIdentity.getContextData().get(VALIDATED_ID_TOKEN);
 			var acrClaim = (String) idToken.getOtherClaims().get(ACR_CLAIM_NAME);
 
-			var fcReturnedEidasLevel = EidasLevel.getOrDefault(acrClaim, null);
+			var pscEidasLevel = EidasLevel.getOrDefault(acrClaim, EidasLevel.EIDAS1);
 			var expectedEidasLevel = getConfig().getEidasLevel();
 
-			if (fcReturnedEidasLevel == null) {
-				throw new IdentityBrokerException("The returned eIDAS level cannot be retrieved");
+			if (pscEidasLevel == null) {
+				throw new IdentityBrokerException("The returned eIDAS level is not supported");
 			}
-
-			logger.debugv("Expecting eIDAS level: {0}, actual: {1}", expectedEidasLevel, fcReturnedEidasLevel);
-
-			if (fcReturnedEidasLevel.compareTo(expectedEidasLevel) < 0) {
-				throw new IdentityBrokerException("The returned eIDAS level is insufficient");
-			}
+			
+			logger.debugv("Expecting eIDAS level: {0}, actual: {1}", expectedEidasLevel, pscEidasLevel);
 
 			return federatedIdentity;
 
@@ -317,7 +316,7 @@ final class ProSanteConnectIdentityProvider extends OIDCIdentityProvider
 				contentMediaType = null;
 			}
 			if (contentMediaType == null || contentMediaType.isWildcardSubtype() || contentMediaType.isWildcardType()) {
-				throw new RuntimeException(
+				throw new KeycloakPscRuntimeException(
 						"Unsupported content-type [" + contentType + "] in response from [" + userInfoUrl + "].");
 			}
 
@@ -332,11 +331,11 @@ final class ProSanteConnectIdentityProvider extends OIDCIdentityProvider
 
 					userInfo = getJsonFromJWT(jwt);
 				} catch (IdentityBrokerException ex) {
-					throw new RuntimeException(
+					throw new KeycloakPscRuntimeException(
 							"Failed to verify signature of userinfo response from [" + userInfoUrl + "].", ex);
 				}
 			} else {
-				throw new RuntimeException(
+				throw new KeycloakPscRuntimeException(
 						"Unsupported content-type [" + contentType + "] in response from [" + userInfoUrl + "].");
 			}
 
@@ -352,10 +351,13 @@ final class ProSanteConnectIdentityProvider extends OIDCIdentityProvider
 		identity.setId(id);
 		identity.getContextData().put(VALIDATED_ID_TOKEN, idToken);
 
-		identity.setFirstName(givenName);
-		identity.setLastName(familyName);
-
-		if (givenName == null && familyName == null) {
+		if(givenName != null) {
+			identity.setFirstName(givenName);
+		}
+		
+		if(familyName != null) {
+			identity.setLastName(familyName);
+		} else {
 			identity.setLastName(name);
 		}
 
@@ -368,9 +370,7 @@ final class ProSanteConnectIdentityProvider extends OIDCIdentityProvider
 
 		if (tokenResponse != null && tokenResponse.getSessionState() != null) {
 			identity.setBrokerSessionId(getConfig().getAlias() + "." + tokenResponse.getSessionState());
-		}
-
-		if (tokenResponse != null) {
+		} else if (tokenResponse != null) {
 			identity.getContextData().put(FEDERATED_ACCESS_TOKEN_RESPONSE, tokenResponse);
 			processAccessTokenResponse(identity, tokenResponse);
 		}

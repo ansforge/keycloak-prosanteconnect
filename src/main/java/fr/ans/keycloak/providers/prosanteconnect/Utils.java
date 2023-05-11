@@ -1,3 +1,6 @@
+/*
+ * (c) Copyright 1998-2023, ANS. All rights reserved.
+ */
 package fr.ans.keycloak.providers.prosanteconnect;
 
 import java.io.IOException;
@@ -5,6 +8,7 @@ import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Properties;
 import java.util.Random;
+
 import org.jboss.logging.Logger;
 import org.keycloak.broker.oidc.mappers.AbstractClaimMapper;
 import org.keycloak.broker.oidc.mappers.UserAttributeMapper;
@@ -22,7 +26,7 @@ public final class Utils {
   private static final Logger logger = Logger.getLogger(Utils.class);
 
   private static ThreadLocal<Random> random = ThreadLocal.withInitial(() -> new SecureRandom());
-
+  
   private Utils() {}
 
   public static IdentityProviderMapperModel createUserAttributeMapper(
@@ -111,12 +115,12 @@ public final class Utils {
     int len = 2 + j + 2 + l;
 
     if (len > 255) {
-      throw new RuntimeException("Invalid ECDSA signature format");
+      throw new KeycloakPscRuntimeException("Invalid ECDSA signature format");
     }
 
     int offset;
 
-    final byte derSignature[];
+    final byte[] derSignature;
 
     if (len < 128) {
       derSignature = new byte[2 + 2 + j + 2 + l];
@@ -149,8 +153,9 @@ public final class Utils {
       throw new IllegalArgumentException();
     }
 
-    byte[] buf = new byte[length];
+    var buf = new byte[length];
     random.get().nextBytes(buf);
+    random.remove();
     return buf;
   }
 }

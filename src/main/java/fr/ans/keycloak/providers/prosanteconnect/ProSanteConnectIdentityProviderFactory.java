@@ -1,3 +1,6 @@
+/*
+ * (c) Copyright 1998-2023, ANS. All rights reserved.
+ */
 package fr.ans.keycloak.providers.prosanteconnect;
 
 import org.keycloak.broker.provider.AbstractIdentityProviderFactory;
@@ -18,12 +21,14 @@ public final class ProSanteConnectIdentityProviderFactory
   public static final String PSC_PROVIDER_ID = "psc";
   public static final String PSC_PROVIDER_NAME = "Pro Sante Connect";
 
-  static final PSCEnvironment DEFAULT_PSC_ENVIRONMENT = PSCEnvironment.INTEGRATION;
+  static final PSCEnvironment DEFAULT_PSC_ENVIRONMENT = PSCEnvironment.PRODUCTION;
+  
+  static final String EMAIL = "email";
 
   static final List<IdentityProviderMapperModel> PSC_PROVIDER_MAPPERS = List.of(
       createUserAttributeMapper(PSC_PROVIDER_ID, "lastName", "family_name", "lastName"),
       createUserAttributeMapper(PSC_PROVIDER_ID, "firstName", "given_name", "firstName"),
-      createUserAttributeMapper(PSC_PROVIDER_ID, "email", "email", "email"),
+      createUserAttributeMapper(PSC_PROVIDER_ID, EMAIL, EMAIL, EMAIL),
       createHardcodedAttributeMapper(PSC_PROVIDER_ID, "provider", "provider", "PSC")
   );
 

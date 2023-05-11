@@ -1,3 +1,6 @@
+/*
+ * (c) Copyright 1998-2023, ANS. All rights reserved.
+ */
 package fr.ans.keycloak.providers.prosanteconnect;
 
 import static fr.ans.keycloak.providers.prosanteconnect.PSCFixture.givenConfigWithSelectedEnvAndSelectedEidasLevel;

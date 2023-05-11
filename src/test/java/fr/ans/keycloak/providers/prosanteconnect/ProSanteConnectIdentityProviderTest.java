@@ -1,3 +1,6 @@
+/*
+ * (c) Copyright 1998-2023, ANS. All rights reserved.
+ */
 package fr.ans.keycloak.providers.prosanteconnect;
 
 import com.nimbusds.jose.JOSEException;
@@ -332,7 +335,7 @@ class ProSanteConnectIdentityProviderTest {
     }*/
 
     @Test
-    void should_throw_exception_when_id_token_does_not_contains_acr_claim() {
+    void should_eidas1_when_id_token_does_not_contains_acr_claim() {
       var kid = "ECDSA-KID";
       var opaqueAccessToken = "2b3ea2e8-2d11-49a4-a369-5fb98d9d5315";
       var jweIdTokenWithoutEidasLevel = givenAnRSAOAEPJWE(
@@ -341,26 +344,30 @@ class ProSanteConnectIdentityProviderTest {
       );
 
       var tokenEndpointResponse = generateTokenEndpointResponse(opaqueAccessToken, jweIdTokenWithoutEidasLevel);
+      var brokeredIdentityContext = provider.getFederatedIdentity(tokenEndpointResponse);
 
-      assertThatThrownBy(() -> provider.getFederatedIdentity(tokenEndpointResponse))
-          .isInstanceOf(IdentityBrokerException.class)
-          .hasMessage("The returned eIDAS level cannot be retrieved");
+      assertThat(brokeredIdentityContext).isNotNull();
+      assertThat(brokeredIdentityContext.getEmail()).isEqualTo("john.doe@gmail.com");
+      assertThat(brokeredIdentityContext.getFirstName()).isEqualTo("John");
+      assertThat(brokeredIdentityContext.getLastName()).isEqualTo("Doe");
+      assertThat(brokeredIdentityContext.getUsername()).isEqualTo("john.doe@gmail.com");
+      assertThat(brokeredIdentityContext.getId()).isEqualTo("fakeSub");
     }
 
     @Test
     void should_throw_exception_when_id_token_contains_acr_claim_who_does_not_match_with_a_supported_eidas_level() {
       var kid = "ECDSA-KID";
       var opaqueAccessToken = "2b3ea2e8-2d11-49a4-a369-5fb98d9d5315";
-      var jweIdTokenWithoutEidasLevel = givenAnRSAOAEPJWE(
+      var jweIdTokenUnsupportedEidasLevel = givenAnRSAOAEPJWE(
           rsaKey,
           givenAnECDSASignedJWTWithRegisteredKidInJWKS(kid, UNSUPPORTED_EIDAS_LEVEL_JWT, publicKeysStore)
       );
 
-      var tokenEndpointResponse = generateTokenEndpointResponse(opaqueAccessToken, jweIdTokenWithoutEidasLevel);
+      var tokenEndpointResponse = generateTokenEndpointResponse(opaqueAccessToken, jweIdTokenUnsupportedEidasLevel);
 
       assertThatThrownBy(() -> provider.getFederatedIdentity(tokenEndpointResponse))
           .isInstanceOf(IdentityBrokerException.class)
-          .hasMessage("The returned eIDAS level cannot be retrieved");
+          .hasMessage("The returned eIDAS level is not supported");
     }
   }
 }

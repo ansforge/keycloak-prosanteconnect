@@ -1,3 +1,6 @@
+/*
+ * (c) Copyright 1998-2023, ANS. All rights reserved.
+ */
 package fr.ans.keycloak.mappers;
 
 import fr.ans.keycloak.providers.prosanteconnect.ProSanteConnectIdentityProviderFactory;
