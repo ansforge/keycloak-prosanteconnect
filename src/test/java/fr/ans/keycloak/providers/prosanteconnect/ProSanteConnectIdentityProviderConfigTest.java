@@ -4,6 +4,7 @@
 package fr.ans.keycloak.providers.prosanteconnect;
 
 import static fr.ans.keycloak.providers.prosanteconnect.PSCFixture.givenConfigWithSelectedEnvAndSelectedEidasLevel;
+import static fr.ans.keycloak.providers.prosanteconnect.PSCFixture.givenDefaultConfig;
 import static fr.ans.keycloak.providers.prosanteconnect.ProSanteConnectIdentityProviderFactory.PSC_PROVIDER_MAPPERS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -47,6 +48,13 @@ class ProSanteConnectIdentityProviderConfigTest {
     //assertThat(config.getIssuer()).isNotNull();
     //assertThat(config.isUseJwksUrl()).isTrue();
     //assertThat(config.getJwksUrl()).endsWith("/jwks");
+  }
+  
+  @Test
+  void should_initialize_default_config() {
+	  var config = givenDefaultConfig();
+	  
+	  assertThat(config.isEnabled()).isFalse();
   }
 
   @Test

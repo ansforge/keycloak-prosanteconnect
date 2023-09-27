@@ -10,7 +10,7 @@ import static org.mockito.Mockito.when;
 import java.security.Security;
 import java.util.Optional;
 
-import javax.ws.rs.core.UriInfo;
+import jakarta.ws.rs.core.UriInfo;
 
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;

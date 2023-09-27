@@ -4,7 +4,7 @@
 package fr.ans.keycloak.providers.prosanteconnect;
 
 import static fr.ans.keycloak.providers.prosanteconnect.Utils.transcodeSignatureToDER;
-import static javax.ws.rs.core.Response.Status.OK;
+import static jakarta.ws.rs.core.Response.Status.OK;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -13,15 +13,15 @@ import java.security.Signature;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
-import javax.ws.rs.core.UriInfo;
-import javax.xml.bind.DatatypeConverter;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.UriBuilder;
+import jakarta.ws.rs.core.UriInfo;
+import jakarta.xml.bind.DatatypeConverter;
 
 import org.keycloak.OAuth2Constants;
 import org.keycloak.broker.oidc.AbstractOAuth2IdentityProvider;
@@ -184,7 +184,7 @@ final class ProSanteConnectIdentityProvider extends OIDCIdentityProvider
 
 		} catch (IdentityBrokerException ex) {
 			logger.error("Got response " + response);
-			throw ex;
+			throw new KeycloakPscRuntimeException(ex.getMessage(), ex);
 		}
 	}
 
@@ -370,7 +370,8 @@ final class ProSanteConnectIdentityProvider extends OIDCIdentityProvider
 
 		if (tokenResponse != null && tokenResponse.getSessionState() != null) {
 			identity.setBrokerSessionId(getConfig().getAlias() + "." + tokenResponse.getSessionState());
-		} else if (tokenResponse != null) {
+		} 
+		if (tokenResponse != null) {
 			identity.getContextData().put(FEDERATED_ACCESS_TOKEN_RESPONSE, tokenResponse);
 			processAccessTokenResponse(identity, tokenResponse);
 		}

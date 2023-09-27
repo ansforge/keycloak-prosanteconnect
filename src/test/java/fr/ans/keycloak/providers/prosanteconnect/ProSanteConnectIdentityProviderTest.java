@@ -9,6 +9,7 @@ import com.nimbusds.jose.jwk.RSAKey;
 import fr.ans.keycloak.utils.*;
 
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.jboss.logging.Log4j2LoggerProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator.ReplaceUnderscores;
@@ -23,7 +24,7 @@ import org.keycloak.models.KeycloakSession;
 import org.keycloak.representations.JsonWebToken;
 import org.mockito.Mockito;
 
-import javax.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.HttpHeaders;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Map;
@@ -35,6 +36,7 @@ import static fr.ans.keycloak.utils.KeycloakFixture.givenKeycloakSession;
 import static fr.ans.keycloak.utils.SignatureUtils.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.keycloak.broker.oidc.OIDCIdentityProvider.VALIDATED_ID_TOKEN;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
@@ -366,8 +368,33 @@ class ProSanteConnectIdentityProviderTest {
       var tokenEndpointResponse = generateTokenEndpointResponse(opaqueAccessToken, jweIdTokenUnsupportedEidasLevel);
 
       assertThatThrownBy(() -> provider.getFederatedIdentity(tokenEndpointResponse))
-          .isInstanceOf(IdentityBrokerException.class)
+          .isInstanceOf(KeycloakPscRuntimeException.class)
           .hasMessage("The returned eIDAS level is not supported");
+    }
+    
+    @Test
+    void wrong_content_type_exception() throws IOException {
+      var httpResponse = ClosableHttpResponse.from(
+          Map.of(HttpHeaders.CONTENT_TYPE, "application/json2"),
+          USERINFO_JWT.toString()
+      );
+      when(httpClient.execute(any()))
+          .thenAnswer(answer -> httpResponse);
+      
+      var kid = "ECDSA-KID";
+      var opaqueAccessToken = "2b3ea2e8-2d11-49a4-a369-5fb98d9d5315";
+      var jweIdToken = givenAnRSAOAEPJWEForAnECDSASignedEidas2JWTWithRegisteredKidInJWKS(kid, publicKeysStore, rsaKey);
+
+      var tokenEndpointResponse = generateTokenEndpointResponse(opaqueAccessToken, jweIdToken);
+
+      Exception pscException = assertThrows(KeycloakPscRuntimeException.class, () -> {
+          provider.getFederatedIdentity(tokenEndpointResponse);
+      });
+      
+      String expectedMessage = "Could not fetch attributes from userinfo endpoint.";
+      String actualMessage = pscException.getMessage();
+      
+      assertThat(actualMessage.contains(expectedMessage)).isTrue();
     }
   }
 }

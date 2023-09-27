@@ -82,6 +82,10 @@ final class PSCFixture {
 
     return new ProSanteConnectIdentityProviderConfig(model);
   }
+  
+  static ProSanteConnectIdentityProviderConfig givenDefaultConfig() {
+	  return new ProSanteConnectIdentityProviderConfig();
+  }
 
   static String givenAnHMACSignedEidas1JWT() {
     return signJwtWithHS256SharedSecret(EIDAS1_JWT, CLIENT_SECRET);

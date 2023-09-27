@@ -14,7 +14,8 @@ Ce connecteur Keycloack fourni par l’ANS a pour vocation de simplifier l’int
 ## Compatibilité
 
 - La version 1.0.0 est compatible avec Keycloak `18.0.X`.
-- La version 2.0.X est compatible avec Keycloak `21.0.X` et supérieur.
+- La version 2.0.X est compatible avec Keycloak `21.0.X`.
+- La version 3.0.X est compatible avec Keycloak `22.0.X` et supérieur.
 
 ## Installation
 
