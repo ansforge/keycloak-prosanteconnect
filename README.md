@@ -99,6 +99,6 @@ La page de login de Keycloak ressemblera alors à ça:
 ### Que faire si le build échoue avec le message ' Some files do not have the expected license header.' ?
 
 1.  Exécuter la commande maven suivante :
-    `` mvn initialize license:format``
+    `` mvnw initialize license:format``
 
 1.  Vérifier les modifications et committer
