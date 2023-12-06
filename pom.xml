@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>fr.ans.keycloak</groupId>
 	<artifactId>keycloak-prosanteconnect</artifactId>
-	<version>3.0.0</version>
+	<version>3.0.1-SNAPSHOT</version>
 	<name>${project.groupId}:${project.artifactId}</name>
 	<description>Pro Sante Connect Openid-Connect Provider pour Keycloak pour l'environnement PROD</description>
 	
