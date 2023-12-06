@@ -189,7 +189,7 @@
 						<goals>
 							<goal>check</goal>
 						</goals>
-						<phase>initialize</phase>
+						<phase>process-sources</phase>
 					</execution>
 				</executions>
 				<configuration>
