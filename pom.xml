@@ -137,6 +137,56 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<version>3.4.0</version>
+				<executions>
+					<execution>
+						<id>timestamp-property</id>
+						<goals>
+							<goal>timestamp-property</goal>
+						</goals>
+						<phase>validate</phase>
+						<configuration>
+							<name>license.current.year</name>
+							<pattern>yyyy</pattern>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>com.mycila</groupId>
+				<artifactId>license-maven-plugin</artifactId>
+				<version>4.3</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>check</goal>
+						</goals>
+						<phase>initialize</phase>
+					</execution>
+				</executions>
+				<configuration>
+					<header>LICENSE</header>
+					<excludes>
+						<exclude>**/*.PNG</exclude>
+					</excludes>
+					<mapping>
+						<gitattributes>SCRIPT_STYLE</gitattributes>
+						<java>SLASHSTAR_STYLE</java>
+					</mapping>
+					<aggregate>false</aggregate>
+					<strictCheck>true</strictCheck>
+					<properties>
+						<!--
+						  This license current year is computed. If we wanted to rebuild an old version without
+						  changing license headers, we would just need to add -Dlicense.current.year=XXX to the maven command line.
+						-->
+						<license.current.year>${license.current.year}</license.current.year>
+					</properties>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 	<dependencies>
