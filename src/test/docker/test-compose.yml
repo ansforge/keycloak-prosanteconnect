@@ -1,0 +1,59 @@
+#
+# MIT License
+#
+# Copyright (c) 2022-2023 Agence du Numérique en Santé
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+#
+
+networks:
+  storage:
+    name: storage
+    internal: true
+  frontend:
+    name: frontend
+services:
+  database:
+    image: postgres:15.1-bullseye
+    container_name: psc_kc_database
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: bitnami_keycloak
+    volumes:
+      - /var/lib/postgresql/data
+    networks:
+      - storage
+  keycloak:
+    # for development : select the last keycloak 22.y.z based on debian 11
+    image: bitnami/keycloak:22-debian-11
+    container_name: psc_kc_keycloak
+    environment:
+      KEYCLOAK_ADMIN_USER: admin
+      KEYCLOAK_ADMIN_PASSWORD: password
+      KEYCLOAK_DATABASE_HOST: database
+      KEYCLOAK_DATABASE_USER: postgres
+      KEYCLOAK_DATABASE_PASSWORD: password
+    ports:
+      - 127.0.0.5:8080:8080
+    volumes:
+      - ${BASE_DIR}/target/keycloak-prosanteconnect-${VERSION}.jar:/opt/bitnami/keycloak/providers/keycloak-prosanteconnect-${VERSION}.jar
+    networks:
+      - storage
+      - frontend
