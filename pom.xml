@@ -199,6 +199,7 @@
 						<!-- Ignore configuration files from the ANS forge -->
 						<exclude>ASIPGlobalSettings.xml</exclude>
 						<exclude>ASIPProfilesSettings.xml</exclude>
+						<exclude>dependency-check-report.xml</exclude>
 						<!-- End of ANS forge-related ignores -->
 					</excludes>
 					<mapping>
