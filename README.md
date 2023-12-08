@@ -94,3 +94,11 @@ Il y a deux moyens de définir le thème :
 La page de login de Keycloak ressemblera alors à ça:
 ![keycloak_theme_login](/assets/keycloak_theme_login.PNG)
 
+## Build
+
+### Que faire si le build échoue avec le message ' Some files do not have the expected license header.' ?
+
+1.  Exécuter la commande maven suivante :
+    `` mvnw initialize license:format``
+
+1.  Vérifier les modifications et committer
