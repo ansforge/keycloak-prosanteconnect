@@ -196,6 +196,10 @@
 					<header>LICENSE</header>
 					<excludes>
 						<exclude>**/*.PNG</exclude>
+						<!-- Ignore configuration files from the ANS forge -->
+						<exclude>ASIPGlobalSettings.xml</exclude>
+						<exclude>ASIPProfilesSettings.xml</exclude>
+						<!-- End of ANS forge-related ignores -->
 					</excludes>
 					<mapping>
 						<gitattributes>SCRIPT_STYLE</gitattributes>
