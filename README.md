@@ -102,3 +102,8 @@ La page de login de Keycloak ressemblera alors à ça:
     `` mvnw initialize license:format``
 
 1.  Vérifier les modifications et committer
+
+### Pourquoi le build échoue-t'il pour en-têtes non-conforme sans modification des sources ?
+
+Le time-span des copyright est calculé automatiquement. Par conséquent, au premier build de l'année une moise à jour 
+des en-têtes est demandée.
