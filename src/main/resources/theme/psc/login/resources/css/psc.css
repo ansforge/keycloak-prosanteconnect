@@ -463,8 +463,13 @@ a#social-psc:hover {
     background-size: cover;
     height: 56px;
     width: 224px;
+	
 }
 
 a#social-psc span {
     display:none;
+}
+
+ul.kc-social-links>li {
+	display: contents;
 }
