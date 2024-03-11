@@ -208,7 +208,7 @@ final class ProSanteConnectIdentityProvider extends OIDCIdentityProvider
 		}
 	}
 
-	protected class OIDCEndpoint extends Endpoint {
+	protected static class OIDCEndpoint extends Endpoint {
 
 		private final ProSanteConnectIdentityProviderConfig config;
 
