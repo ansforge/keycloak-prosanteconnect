@@ -2,7 +2,7 @@
 
     MIT License
 
-    Copyright (c) 2022-2023 Agence du Numérique en Santé
+    Copyright (c) 2022-2024 Agence du Numérique en Santé
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal
@@ -27,7 +27,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>fr.ans.keycloak</groupId>
 	<artifactId>keycloak-prosanteconnect</artifactId>
-	<version>3.0.3-SNAPSHOT</version>
+	<version>4.0.0</version>
 	<name>${project.groupId}:${project.artifactId}</name>
 	<description>Pro Sante Connect Openid-Connect Provider pour Keycloak pour l'environnement PROD</description>
 	
@@ -46,7 +46,7 @@
 	
 	<scm>
 		<developerConnection>${developperConnectionJenkinsfile}</developerConnection>
-		<tag>HEAD</tag>
+		<tag>keycloak-prosanteconnect-4.0.0</tag>
 	</scm>
 
 	<distributionManagement>

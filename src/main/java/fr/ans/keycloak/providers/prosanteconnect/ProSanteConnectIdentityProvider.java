@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022-2023 Agence du Numérique en Santé
+ * Copyright (c) 2022-2024 Agence du Numérique en Santé
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -208,7 +208,7 @@ final class ProSanteConnectIdentityProvider extends OIDCIdentityProvider
 		}
 	}
 
-	protected class OIDCEndpoint extends Endpoint {
+	protected static class OIDCEndpoint extends Endpoint {
 
 		private final ProSanteConnectIdentityProviderConfig config;
 
