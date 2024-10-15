@@ -81,8 +81,8 @@ class ProSanteConnectIdentityProviderTest {
     httpClientProvider = mock(HttpClientProvider.class);
     httpClient = mock(CloseableHttpClient.class);
 
-    when(httpClientProvider.get(config.getJwksUrl()))
-        .thenAnswer(answer -> new ByteArrayInputStream(publicKeysStore.toJsonByteArray()));
+    when(httpClientProvider.getString(config.getJwksUrl()))
+            .thenAnswer(answer -> publicKeysStore.toJsonFormat());
     session = givenKeycloakSession(httpClientProvider, httpClient);
 
     provider = new ProSanteConnectIdentityProvider(session, config);
