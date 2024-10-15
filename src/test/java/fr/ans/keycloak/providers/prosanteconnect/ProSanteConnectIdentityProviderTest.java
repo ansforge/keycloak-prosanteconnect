@@ -64,6 +64,13 @@ import static org.mockito.Mockito.*;
 @DisplayNameGeneration(ReplaceUnderscores.class)
 class ProSanteConnectIdentityProviderTest {
 
+  /**
+   * Value copied from {@link HttpClientProvider#getMaxConsumedResponseSize()} (new method in Keycloak 25)
+   *
+   * @see <a href="https://github.com/keycloak/keycloak/commit/6de5325d1c49053a8f5bfd84ed4a5a7646ea3a65">Commit : Limit the received content when handling the content as a String</a>
+   */
+  private static final long DEFAULT_MAX_CONSUMED_RESPONSE_SIZE = 10_000_000L;
+
   // Used by KeycloakSession
   private HttpClientProvider httpClientProvider;
   private CloseableHttpClient httpClient;
@@ -83,6 +90,8 @@ class ProSanteConnectIdentityProviderTest {
 
     when(httpClientProvider.getString(config.getJwksUrl()))
             .thenAnswer(answer -> publicKeysStore.toJsonFormat());
+    when(httpClientProvider.getMaxConsumedResponseSize())
+            .thenReturn(DEFAULT_MAX_CONSUMED_RESPONSE_SIZE);
     session = givenKeycloakSession(httpClientProvider, httpClient);
 
     provider = new ProSanteConnectIdentityProvider(session, config);
