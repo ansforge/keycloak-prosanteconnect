@@ -58,8 +58,8 @@
 	
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<maven.compiler.source>17</maven.compiler.source>
-		<maven.compiler.target>17</maven.compiler.target>
+		<maven.compiler.source>21</maven.compiler.source>
+		<maven.compiler.target>21</maven.compiler.target>
 		<maven.clean.plugin.version>3.1.0</maven.clean.plugin.version>
 		<maven.compiler.plugin.version>3.8.1</maven.compiler.plugin.version>
 		<maven.resources.plugin.version>3.2.0</maven.resources.plugin.version>
@@ -69,8 +69,10 @@
 		<maven.source.plugin.version>3.2.1</maven.source.plugin.version>
 		<maven.javadoc.plugin.version>3.3.1</maven.javadoc.plugin.version>
 		<wildfly.maven.plugin.version>2.1.0.Final</wildfly.maven.plugin.version>
-		<keycloak.version>22.0.1</keycloak.version>
+		<keycloak.version>25.0.6</keycloak.version>
 		<bouncycastle.version>1.74</bouncycastle.version>
+		<jakarta-xml-bind.version>4.0.2</jakarta-xml-bind.version>
+		<jersey.version>3.1.9</jersey.version>
 		<!-- Testing Tools -->
 		<junit.jupiter.version>5.8.1</junit.jupiter.version>
 		<assertj.version>3.21.0</assertj.version>
@@ -261,6 +263,12 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
+			<groupId>jakarta.xml.bind</groupId>
+			<artifactId>jakarta.xml.bind-api</artifactId>
+			<version>${jakarta-xml-bind.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
 			<groupId>org.bouncycastle</groupId>
 			<artifactId>bcprov-jdk18on</artifactId>
 			<version>${bouncycastle.version}</version>
@@ -294,6 +302,12 @@
 			<groupId>com.nimbusds</groupId>
 			<artifactId>nimbus-jose-jwt</artifactId>
 			<version>${nimbus.jose-jwt.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.glassfish.jersey.core</groupId>
+			<artifactId>jersey-common</artifactId>
+			<version>${jersey.version}</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
