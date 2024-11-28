@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022-2023 Agence du Numérique en Santé
+ * Copyright (c) 2022-2024 Agence du Numérique en Santé
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -208,7 +208,7 @@ final class ProSanteConnectIdentityProvider extends OIDCIdentityProvider
 		}
 	}
 
-	protected class OIDCEndpoint extends Endpoint {
+	protected static class OIDCEndpoint extends Endpoint {
 
 		private final ProSanteConnectIdentityProviderConfig config;
 
@@ -314,7 +314,7 @@ final class ProSanteConnectIdentityProvider extends OIDCIdentityProvider
 	protected BrokeredIdentityContext extractIdentity(AccessTokenResponse tokenResponse, String accessToken,
 			JsonWebToken idToken) throws IOException {
 		var id = idToken.getSubject();
-		var identity = new BrokeredIdentityContext(id);
+		var identity = new BrokeredIdentityContext(id, getConfig());
 
 		var name = (String) idToken.getOtherClaims().get(IDToken.NAME);
 		var givenName = (String) idToken.getOtherClaims().get(IDToken.GIVEN_NAME);
