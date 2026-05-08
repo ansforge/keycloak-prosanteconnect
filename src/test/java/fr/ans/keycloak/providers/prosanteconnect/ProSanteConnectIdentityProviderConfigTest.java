@@ -72,43 +72,43 @@ class ProSanteConnectIdentityProviderConfigTest {
   
   @Test
   void should_initialize_default_config() {
-	  var config = givenDefaultConfig();
-	  
-	  assertThat(config.isEnabled()).isFalse();
+      var config = givenDefaultConfig();
+      
+      assertThat(config.isEnabled()).isFalse();
   }
 
   @Test
   void
       should_initialize_config_with_selected_ignoreAbsentStateParameterLogout_from_admin_interface() {
-    var config = givenConfigWithSelectedEnvAndSelectedEidasLevel("integration", "eidas1");;
+    var config = givenConfigWithSelectedEnvAndSelectedEidasLevel("integration", "eidas1");
 
     assertThat(config.isIgnoreAbsentStateParameterLogout()).isFalse();
   }
 
   @Test
   void should_initialize_config_with_signature_validation() {
-    var config = givenConfigWithSelectedEnvAndSelectedEidasLevel("integration", "eidas1");;
+    var config = givenConfigWithSelectedEnvAndSelectedEidasLevel("integration", "eidas1");
 
     assertThat(config.isValidateSignature()).isTrue();
   }
 
   @Test
   void should_initialize_config_without_backchannel_support() {
-    var config = givenConfigWithSelectedEnvAndSelectedEidasLevel("integration", "eidas1");;
+    var config = givenConfigWithSelectedEnvAndSelectedEidasLevel("integration", "eidas1");
 
     assertThat(config.isBackchannelSupported()).isFalse();
   }
 
   @Test
   void should_create_identity_mappers_when_saving_configuration_for_the_first_time() {
-    var unsavedConfig = givenConfigWithSelectedEnvAndSelectedEidasLevel("integration", "eidas1");;
+    var unsavedConfig = givenConfigWithSelectedEnvAndSelectedEidasLevel("integration", "eidas1");
     var realm = mock(RealmModel.class);
 
     unsavedConfig.validate(realm);
 
     verify(realm, times(PSC_PROVIDER_MAPPERS.size())).addIdentityProviderMapper(any());
 
-    var alreadySavedConfig = givenConfigWithSelectedEnvAndSelectedEidasLevel("integration", "eidas1");;
+    var alreadySavedConfig = givenConfigWithSelectedEnvAndSelectedEidasLevel("integration", "eidas1");
     var unusedRealm = mock(RealmModel.class);
     alreadySavedConfig.getConfig().put("isCreated", "true");
 
