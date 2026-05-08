@@ -23,6 +23,7 @@
  */
 package fr.ans.keycloak.providers.prosanteconnect;
 
+@SuppressWarnings("java:S6548") // Not a Singleton: this enum represents eIDAS levels of assurance, currently only EIDAS1 is supported
 public enum EidasLevel {
   EIDAS1;
 
@@ -41,7 +42,7 @@ public enum EidasLevel {
     }
     
     if (eidasLevelName == null) {
-    	return defaultEidasLevel;
+        return defaultEidasLevel;
     }
     
     return null;
