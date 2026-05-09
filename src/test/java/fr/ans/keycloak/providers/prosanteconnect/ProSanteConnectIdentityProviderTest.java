@@ -293,7 +293,7 @@ class ProSanteConnectIdentityProviderTest {
     }
 
     @Test
-    void should_extract_information_from_JWT_userinfo_endpoint_response_for_eidas1() throws IOException {
+    void should_extract_information_from_JWT_userinfo_endpoint_response_for_eidas1() {
       // Change current selected eidas level in config
       config.getConfig().put(EidasLevel.EIDAS_LEVEL_PROPERTY_NAME, "eidas1");
 
@@ -414,7 +414,7 @@ class ProSanteConnectIdentityProviderTest {
       String expectedMessage = "Could not fetch attributes from userinfo endpoint.";
       String actualMessage = pscException.getMessage();
       
-      assertThat(actualMessage.contains(expectedMessage)).isTrue();
+      assertThat(actualMessage).contains(expectedMessage);
     }
   }
 }
