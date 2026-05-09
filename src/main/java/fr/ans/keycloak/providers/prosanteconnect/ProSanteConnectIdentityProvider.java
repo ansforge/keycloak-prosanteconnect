@@ -325,7 +325,7 @@ final class ProSanteConnectIdentityProvider extends OIDCIdentityProvider
 		var userInfoUrl = getUserInfoUrl();
 		if (!getConfig().isDisableUserInfoService() && userInfoUrl != null && !userInfoUrl.isEmpty()
 				&& accessToken != null) {
-			var response = executeRequest(userInfoUrl,
+			var response = executeHttpRequest(userInfoUrl,
 					SimpleHttp.doGet(userInfoUrl, session).header("Authorization", "Bearer " + accessToken));
 			var contentType = response.getFirstHeader(HttpHeaders.CONTENT_TYPE);
 
@@ -422,7 +422,7 @@ final class ProSanteConnectIdentityProvider extends OIDCIdentityProvider
 		}
 	}
 
-	private SimpleHttp.Response executeRequest(String url, SimpleHttp request) throws IOException {
+	private SimpleHttp.Response executeHttpRequest(String url, SimpleHttp request) throws IOException {
 		var response = request.asResponse();
 
 		if (response.getStatus() != OK.getStatusCode()) {
