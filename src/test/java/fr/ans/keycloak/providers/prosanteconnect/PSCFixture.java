@@ -60,7 +60,7 @@ final class PSCFixture {
       .claim("idp", "FC")
       .claim("acr", "eidas2")
       .claim("amr", null)
-      .build();*/
+      */
 
   static final JWTClaimsSet NO_EIDAS_LEVEL_JWT = new JWTClaimsSet.Builder()
       .subject("fakeSub")
@@ -88,9 +88,9 @@ final class PSCFixture {
       .claim("email", "john.doe@gmail.com")
       .build();
 
-  /*static ProSanteConnectIdentityProviderConfig givenConfigForIntegrationAndEidasLevel2() {
-    return givenConfigWithSelectedEnvAndSelectedEidasLevel("integration", "eidas2");
-  }*/
+  /*
+    
+  */
 
   static ProSanteConnectIdentityProviderConfig givenConfigWithSelectedEnvAndSelectedEidasLevel(String environmentName, String eidasLevelName) {
     var model = new IdentityProviderModel();

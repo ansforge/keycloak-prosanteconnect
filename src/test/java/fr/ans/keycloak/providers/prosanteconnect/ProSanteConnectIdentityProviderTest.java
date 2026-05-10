@@ -90,17 +90,17 @@ class ProSanteConnectIdentityProviderTest {
 
   /*
   @Test
-  void should_load_jwks_from_jwks_url_when_configuration_supports_jwks() throws IOException {
-    verify(httpClientProvider, times(1)).get(config.getJwksUrl());
+  
+    
 
-    var noJWKSSupportsConfig = config;
-    var httpClientProvider = mock(HttpClientProvider.class);
-    var session = givenKeycloakSession(httpClientProvider, httpClient);
+    
+    
+    
 
-    var provider = new ProSanteConnectIdentityProvider(session, noJWKSSupportsConfig);
+    
 
-    verify(httpClientProvider, never()).get(anyString());
-  }*/
+    
+  */
 
   @Nested
   class AuthorizationUrlCreation {

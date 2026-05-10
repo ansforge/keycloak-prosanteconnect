@@ -47,13 +47,13 @@ class ProSanteConnectIdentityProviderConfigTest {
 
     assertThat(config.getEidasLevel()).isEqualTo(EidasLevel.EIDAS1);
 
-    /*config = givenConfigWithSelectedEnvAndSelectedEidasLevel("integration", "eidas2");
+    /*
 
-    assertThat(config.getEidasLevel()).isEqualTo(EidasLevel.EIDAS2);
+    
 
-    config = givenConfigWithSelectedEnvAndSelectedEidasLevel("integration", "eidas3");
+    
 
-    assertThat(config.getEidasLevel()).isEqualTo(EidasLevel.EIDAS3);*/
+    */
   }
 
   @Test
@@ -65,9 +65,9 @@ class ProSanteConnectIdentityProviderConfigTest {
     assertThat(config.getTokenUrl()).isNotNull().endsWith("/token");
     assertThat(config.getUserInfoUrl()).isNotNull().endsWith("/userinfo");
     assertThat(config.getLogoutUrl()).isNotNull().endsWith("/logout");
-    //assertThat(config.getIssuer()).isNotNull();
-    //assertThat(config.isUseJwksUrl()).isTrue();
-    //assertThat(config.getJwksUrl()).endsWith("/jwks");
+    //
+    //
+    //
   }
   
   @Test
